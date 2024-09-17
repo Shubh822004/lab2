@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Breeds Information</title>
+    <style>
+    
+
+.button:hover {
+  background-color: #e72305;
+  color: white;
+}
+.button:active {
+  
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <button onclick="AllNames()" class="button"><b>All Names</b></button><br><br>
+        <input type="text" placeholder="Health Issues" id="healthIssues">
+        <button onclick="ValueofHealthIssues()"class="button">Filter by Health Issues</button>
+        <br><br>
+        
+        <input type="radio" id="imperial" name="unit" checked>
+        <label for="imperial">Imperial</label>
+        
+        <input type="radio" id="metric" name="unit">
+        <label for="metric">Metric</label>
+        
+        <button onclick="Weight()"class="button">Weight</button>
+        <br><br>
+        
+        <button onclick="IntelligenceAndFriendly()"class="button">Intelligence - Friendly</button>
+        <br><br>
+        
+        <button onclick="AverageIntelligence()"class="button">Average Intelligence</button>
+        <br><br>
+        
+        <button onclick="AverageIntelligenceForFriendly()"class="button">Average Intelligence for Child Friendly = 4</button>
+        <br><br>
+        
+        <div class="results-box" id="resultsBox">
+            All Results should be displayed here.
+        </div>
+    </div>
+
+    <script>
+        const jsonUrl = "https://api.thecatapi.com/v1/breeds";
+
+        function AllNames() {
+            fetch(jsonUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const x = document.getElementById('resultsBox');
+                    x.innerHTML = ""; 
+                    data.forEach(cat => {
+                        const name = document.createTextNode(cat.name);
+                        const lineBreak = document.createElement('br');
+                        x.appendChild(name);
+                        x.appendChild(lineBreak);
+                    });
+                })
+                .catch(error => console.error('Error fetching cat names:', error));
+        }
+
+        
+        function ValueofHealthIssues() {
+            const x = document.getElementById('healthIssues').value;
+            if (x) {
+                fetch(jsonUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        const x = document.getElementById('resultsBox');
+                        x.innerHTML = ""; 
+                        data.forEach(cat => {
+                            if (cat.health_issues && cat.health_issues.includes(x)) {
+                                const name = document.createTextNode(cat.name);
+                                const lineBreak = document.createElement('br');
+                                x.appendChild(name);
+                                x.appendChild(lineBreak);
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Error fetching health issues:', error));
+            }
+        }
+        function Weight() {
+            const isMetric = document.getElementById('metric').checked;
+            fetch(jsonUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const x = document.getElementById('resultsBox');
+                    x.innerHTML = ""; 
+                    data.forEach(cat => {
+                        const weight = isMetric ? cat.weight.metric : cat.weight.imperial;
+                        const text = `${cat.name}: ${weight}`;                        const textNode = document.createTextNode(text);
+                        const lineBreak = document.createElement('br');
+                        x.appendChild(textNode);
+                        x.appendChild(lineBreak);
+                    });
+                })
+                .catch(error => console.error('Error fetching weights:', error));
+        }
+
+        function IntelligenceAndFriendly() {
+            fetch(jsonUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const x = document.getElementById('resultsBox');
+                    x.innerHTML = ""; 
+                    data.forEach(cat => {
+                        const text = `${cat.name} - Intelligence: ${cat.intelligence}, Friendly: ${cat.child_friendly}`;
+
+                        const textNode = document.createTextNode(text);
+                        const lineBreak = document.createElement('br');
+                        x.appendChild(textNode);
+                        x.appendChild(lineBreak);
+                    });
+                })
+                .catch(error => console.error('Error fetching intelligence and friendly factors:', error));
+        }
+
+        function AverageIntelligence() {
+            fetch(jsonUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const x = document.getElementById('resultsBox');
+                    let totalIntelligence = 0;
+                    data.forEach(cat => {
+                        totalIntelligence += cat.intelligence;
+                    });
+                    const average = totalIntelligence / data.length;
+                    x.innerHTML = `Average Intelligence: ${average.toFixed(2)}`;                })
+                .catch(error => console.error('Error fetching average intelligence:', error));
+        }
+
+       
+        function AverageIntelligenceForFriendly() {
+            fetch(jsonUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const x = document.getElementById('resultsBox');
+                    let totalIntelligence = 0;
+                    let count = 0;
+                    data.forEach(cat => {
+                        if (cat.child_friendly == 4) {
+                            totalIntelligence += cat.intelligence;
+                            count++;
+                        }
+                    });
+                    const average = count > 0 ? totalIntelligence / count : 0;
+                    x.innerHTML = `Average Intelligence for Child Friendly Cats: ${average.toFixed(2)}`;
+                })
+                .catch(error => console.error('Error fetching average intelligence for child friendly:', error));
+        }
+    </script>
+
+</body>
+</html>
